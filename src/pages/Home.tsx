@@ -109,6 +109,17 @@ const SUPPORTED_NETWORKS = {
       decimals: 18,
     },
     blockExplorerUrls: ["https://alfajores.celoscan.io"]
+  },
+  NEONEVM_DEVNET: {
+    chainId: "0xe9ac0ce",
+    chainName: "Neon EVM DevNet",
+    rpcUrls: ["https://devnet.neonevm.org"],
+    nativeCurrency: {
+      name: "Neon",
+      symbol: "Neon",
+      decimals: 18,
+    },
+    blockExplorerUrls: ["https://devnet.neonevm.org"]
   }
 };
 
@@ -187,7 +198,7 @@ const Home: React.FC = () => {
         // Try to switch to Filecoin network
         await provider.request({
           method: "wallet_switchEthereumChain",
-          params: [{ chainId: SUPPORTED_NETWORKS.FILECOIN.chainId }],
+          params: [{ chainId: SUPPORTED_NETWORKS.NEONEVM_DEVNET.chainId }],
         });
         // Mark that we've set the network
         localStorage.setItem("hasSetNetwork", "true");
@@ -197,7 +208,7 @@ const Home: React.FC = () => {
           try {
             await provider.request({
               method: "wallet_addEthereumChain",
-              params: [SUPPORTED_NETWORKS.FILECOIN],
+              params: [SUPPORTED_NETWORKS.NEONEVM_DEVNET],
             });
             localStorage.setItem("hasSetNetwork", "true");
           } catch (addError) {

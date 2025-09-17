@@ -75,7 +75,7 @@ const Menu: React.FC<{
     return filename;
   };
 
-  const getNetworkKey = async (provider: ethers.providers.Web3Provider) => {
+  const getNetworkKey = async (provider: ethers.providers.JsonRpcProvider) => {
     const network = await provider.getNetwork();
     const chainIdHex = "0x" + network.chainId.toString(16);
     
@@ -87,7 +87,7 @@ const Menu: React.FC<{
     throw new Error('Unsupported network');
   };
 
-  const getContractAddresses = async (provider: ethers.providers.Web3Provider) => {
+  const getContractAddresses = async (provider: ethers.providers.JsonRpcProvider) => {
     const networkKey = await getNetworkKey(provider);
     console.log(networkKey);
     
@@ -98,19 +98,25 @@ const Menu: React.FC<{
   };
 
   const fetchUserTokens = async () => {
-    const provider = new ethers.providers.Web3Provider(window.ethereum as any);
+    const provider = new ethers.providers.JsonRpcProvider("https://devnet.neonevm.org");
+    const { mediToken } = await getContractAddresses(provider);
     const signer = provider.getSigner();
-    const { mediInvoice } = await getContractAddresses(provider);
+    console.log("MediToken address: ", signer);
     
+    console.log(mediToken);
     const contract = new ethers.Contract(
-      mediInvoice,
-      medinvoiceabi,
-      signer
+      mediToken,
+      meditokenabi,
+      provider
     );
-    
-    const userTokens = await contract.getUserTokens();
-    console.log("User tokens: ", Number(userTokens));
-    setNumOfTokens(userTokens);
+
+    console.log("User address: ", `0x671B44D779B676f960F7375DCAdb84B4f330CF5D`);
+
+
+    const userTokens = await contract.balanceOf(`0x671B44D779B676f960F7375DCAdb84B4f330CF5D`);
+    const formattedTokens = ethers.utils.formatEther(userTokens);
+    console.log("User tokens: ", Number(formattedTokens));
+    setNumOfTokens(Number(formattedTokens));
   };
 
   const uploadToIPFS = async (fileData) => {
@@ -142,7 +148,7 @@ const Menu: React.FC<{
   };
 
   const updateTokenBalance = async (operation: 'SAVE' | 'SAVE_AS' | 'PRINT' | 'EMAIL') => {
-    const provider = new ethers.providers.Web3Provider(window.ethereum as any);
+    const provider = new ethers.providers.JsonRpcProvider("https://devnet.neonevm.org");
     const signer = provider.getSigner();
     const { mediToken, mediInvoice } = await getContractAddresses(provider);
     console.log(mediToken, mediInvoice);
@@ -172,17 +178,18 @@ const Menu: React.FC<{
 
   const checkSubscriptionStatus = async () => {
     try {
-      const provider = new ethers.providers.Web3Provider(window.ethereum as any);
-      const signer = provider.getSigner();
+      const provider = new ethers.providers.JsonRpcProvider("https://devnet.neonevm.org");
+      console.log(provider);
       const { mediInvoice } = await getContractAddresses(provider);
       
       const contract = new ethers.Contract(
         mediInvoice,
         medinvoiceabi,
-        signer
+        provider
       );
       
       const [exists, endTimeStamp] = await contract.getSubscriptionDetails();
+      console.log("Subscription exists: ", exists);
       
       const isActive = endTimeStamp.toNumber() > Math.floor(Date.now() / 1000);
       setIsUserSubscribed(isActive);
@@ -203,7 +210,7 @@ const Menu: React.FC<{
 
   const subscribe = async () => {
     try {
-      const provider = new ethers.providers.Web3Provider(window.ethereum as any);
+      const provider = new ethers.providers.JsonRpcProvider("https://devnet.neonevm.org");
       const signer = provider.getSigner();
       const { mediInvoice } = await getContractAddresses(provider);
       

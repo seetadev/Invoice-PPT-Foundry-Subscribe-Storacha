@@ -39,7 +39,7 @@ const Menu: React.FC<{
   const [isUserSubscribed, setIsUserSubscribed] = useState(false);
   const [subscriptionEndDate, setSubscriptionEndDate] = useState<Date | null>(null);
   const [showSubscriptionAlert, setShowSubscriptionAlert] = useState(false);
-  const { sdk, connected, connecting, provider, chainId } = useSDK();
+  const { sdk, connected, connecting, provider, chainId,account } = useSDK();
 
   /* Utility functions */
   const _validateName = async (filename) => {
@@ -110,10 +110,10 @@ const Menu: React.FC<{
       provider
     );
 
-    console.log("User address: ", `0x671B44D779B676f960F7375DCAdb84B4f330CF5D`);
+    console.log("User address: ", account);
 
 
-    const userTokens = await contract.balanceOf(`0x671B44D779B676f960F7375DCAdb84B4f330CF5D`);
+    const userTokens = await contract.balanceOf(account);
     const formattedTokens = ethers.utils.formatEther(userTokens);
     console.log("User tokens: ", Number(formattedTokens));
     setNumOfTokens(Number(formattedTokens));

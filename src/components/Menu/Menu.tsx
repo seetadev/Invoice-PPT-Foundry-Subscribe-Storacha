@@ -75,7 +75,7 @@ const Menu: React.FC<{
     return filename;
   };
 
-  const getNetworkKey = async (provider: ethers.providers.JsonRpcProvider) => {
+  const getNetworkKey = async (provider: ethers.providers.Web3Provider) => {
     const network = await provider.getNetwork();
     const chainIdHex = "0x" + network.chainId.toString(16);
     
@@ -87,7 +87,7 @@ const Menu: React.FC<{
     throw new Error('Unsupported network');
   };
 
-  const getContractAddresses = async (provider: ethers.providers.JsonRpcProvider) => {
+  const getContractAddresses = async (provider: ethers.providers.Web3Provider) => {
     const networkKey = await getNetworkKey(provider);
     console.log(networkKey);
     
@@ -98,21 +98,20 @@ const Menu: React.FC<{
   };
 
   const fetchUserTokens = async () => {
+    
     const ethProvider = new ethers.providers.Web3Provider(provider as any);
-    const { mediToken } = await getContractAddresses(ethProvider);
+    const signer = ethProvider.getSigner();
+    const { mediInvoice } = await getContractAddresses(ethProvider);
     
     const contract = new ethers.Contract(
-      mediToken,
-      meditokenabi,
-      ethProvider
+      mediInvoice,
+      medinvoiceabi,
+      signer
     );
-
-    console.log("User address: ", account);
-
-
-    const userTokens = await contract.balanceOf(account);
+    
+    const userTokens = await contract.getUserTokens();
     const formattedTokens = ethers.utils.formatEther(userTokens);
-    console.log("User tokens: ", Number(formattedTokens));
+    console.log("User tokens: ", formattedTokens);
     setNumOfTokens(Number(formattedTokens));
   };
 

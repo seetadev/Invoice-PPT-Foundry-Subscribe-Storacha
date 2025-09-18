@@ -187,7 +187,7 @@ const Home: React.FC = () => {
   }, [billType]);
 
   useEffect(() => {
-    const switchToFilecoin = async () => {
+    const switchToNeonEVM = async () => {
       if (!provider) return;
       
       // Check if we've already set the network
@@ -195,7 +195,7 @@ const Home: React.FC = () => {
       if (hasSetNetwork) return;
 
       try {
-        // Try to switch to Filecoin network
+        // Try to switch to Neon EVM Devnet network
         await provider.request({
           method: "wallet_switchEthereumChain",
           params: [{ chainId: SUPPORTED_NETWORKS.NEONEVM_DEVNET.chainId }],
@@ -212,15 +212,15 @@ const Home: React.FC = () => {
             });
             localStorage.setItem("hasSetNetwork", "true");
           } catch (addError) {
-            console.error("Failed to add Filecoin network:", addError);
+            console.error("Failed to add Neon EVM Devnet network:", addError);
           }
         }
-        console.error("Failed to switch to Filecoin network:", switchError);
+        console.error("Failed to switch to Neon EVM Devnet network:", switchError);
       }
     };
 
     if (connected && provider && account) {
-      switchToFilecoin();
+      switchToNeonEVM();
     }
   }, [provider, connected, account]);
 

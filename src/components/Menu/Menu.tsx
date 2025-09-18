@@ -98,16 +98,13 @@ const Menu: React.FC<{
   };
 
   const fetchUserTokens = async () => {
-    const provider = new ethers.providers.JsonRpcProvider("https://devnet.neonevm.org");
-    const { mediToken } = await getContractAddresses(provider);
-    const signer = provider.getSigner();
-    console.log("MediToken address: ", signer);
+    const ethProvider = new ethers.providers.Web3Provider(provider as any);
+    const { mediToken } = await getContractAddresses(ethProvider);
     
-    console.log(mediToken);
     const contract = new ethers.Contract(
       mediToken,
       meditokenabi,
-      provider
+      ethProvider
     );
 
     console.log("User address: ", account);
@@ -148,10 +145,9 @@ const Menu: React.FC<{
   };
 
   const updateTokenBalance = async (operation: 'SAVE' | 'SAVE_AS' | 'PRINT' | 'EMAIL') => {
-    const provider = new ethers.providers.JsonRpcProvider("https://devnet.neonevm.org");
-    const signer = provider.getSigner();
-    const { mediToken, mediInvoice } = await getContractAddresses(provider);
-    console.log(mediToken, mediInvoice);
+    const ethProvider = new ethers.providers.Web3Provider(provider as any);
+    const signer = ethProvider.getSigner();
+    const { mediToken, mediInvoice } = await getContractAddresses(ethProvider);
     
     const contract = new ethers.Contract(
       mediToken,
@@ -178,18 +174,21 @@ const Menu: React.FC<{
 
   const checkSubscriptionStatus = async () => {
     try {
-      const provider = new ethers.providers.JsonRpcProvider("https://devnet.neonevm.org");
-      console.log(provider);
-      const { mediInvoice } = await getContractAddresses(provider);
+      const ethProvider = new ethers.providers.Web3Provider(provider as any);
+      const { mediInvoice } = await getContractAddresses(ethProvider);
+      const signer = ethProvider.getSigner(account);
       
       const contract = new ethers.Contract(
         mediInvoice,
         medinvoiceabi,
-        provider
+        signer
       );
       
       const [exists, endTimeStamp] = await contract.getSubscriptionDetails();
       console.log("Subscription exists: ", exists);
+
+      const isSubscribed = await contract.isSubscribed(account);
+      console.log("Is user subscribed: ", isSubscribed.toString());
       
       const isActive = endTimeStamp.toNumber() > Math.floor(Date.now() / 1000);
       setIsUserSubscribed(isActive);
@@ -210,17 +209,20 @@ const Menu: React.FC<{
 
   const subscribe = async () => {
     try {
-      const provider = new ethers.providers.JsonRpcProvider("https://devnet.neonevm.org");
-      const signer = provider.getSigner();
-      const { mediInvoice } = await getContractAddresses(provider);
-      
+      const ethProvider = new ethers.providers.Web3Provider(provider as any);
+      const signer = ethProvider.getSigner(account);
+      const { mediInvoice } = await getContractAddresses(ethProvider);
+
       const contract = new ethers.Contract(
         mediInvoice,
         medinvoiceabi,
         signer
       );
+      console.log("Contract: ", mediInvoice);
       
-      const tx = await contract.subscribe();
+      const tx = await contract.subscribe({
+        
+      });
       
       await tx.wait();
       
